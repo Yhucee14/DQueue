@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply dark theme styles */
+html {
+    background-color: #0a0a0a;
+    color: white;
+  }
+  
+  /* Use dark mode colors */
+  body {
+    background-color: #0a0a0a;
+  }
+  
+  .bg-black {
+    background-color: #0a0a0a;
+  }
+  
+  .text-white {
+    color: white;
+  }
+  
+  /* Dark theme button styling */
+  button {
+    background-color: #1E3A8A; /* Dark blue background */
+    color: white;
+  }
+  button:hover {
+    background-color: #3B82F6; /* Lighter blue on hover */
+  }
+  
