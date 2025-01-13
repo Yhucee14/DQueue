@@ -2,5 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/* Add this to your TailwindCSS file or global CSS file */
+.appkit-button {
+    background-color: #1e293b; /* Dark background */
+    color: #ffffff; /* White text */
+    border-radius: 8px; /* Rounded corners */
+    padding: 0.5rem 1rem; /* Padding */
+    transition: all 0.2s ease-in-out; /* Smooth hover effect */
+  }
+  
+  .appkit-button:hover {
+    background-color: #334155; /* Slightly lighter on hover */
+  }
+  
   
