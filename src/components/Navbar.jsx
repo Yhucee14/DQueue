@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createAppKit, useAppKitAccount } from "@reown/appkit/react";
-import { SolanaAdapter } from "@reown/appkit-adapter-solana/react";
+import {
+  SolanaAdapter,
+  useAppKitConnection,
+} from "@reown/appkit-adapter-solana/react";
 import { solana, solanaTestnet, solanaDevnet } from "@reown/appkit/networks";
 import {
   PhantomWalletAdapter,
@@ -9,6 +12,7 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 const projectId = import.meta.env.VITE_PROJECT_ID;
 if (!projectId) {
@@ -37,6 +41,14 @@ const modal = createAppKit({
 const Navbar = () => {
   //   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { isConnected, address } = useAppKitAccount();
+  const { connection } = useAppKitConnection();
+
+  const handleGetBalance = async () => {
+    const wallet = new PublicKey(address);
+    const balance = await connection?.getBalance(wallet);
+
+    console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
+  };
 
   //   const [walletAddress, setWalletAddress] = useState("");
 
@@ -99,6 +111,9 @@ const Navbar = () => {
             <div className="flex flex-row gap-2">
               <div className="text-white">
                 <span>{address}</span>
+                <div>
+                  <button onClick={handleGetBalance}>Get Balance</button>
+                </div>
               </div>
 
               <button
