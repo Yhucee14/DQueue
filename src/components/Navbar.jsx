@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { createAppKit, useAppKitAccount } from "@reown/appkit/react";
+import {
+  createAppKit,
+  useAppKitAccount,
+  useDisconnect,
+} from "@reown/appkit/react";
 import {
   SolanaAdapter,
   useAppKitConnection,
@@ -13,6 +16,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useQuery } from "@tanstack/react-query";
 
 const projectId = import.meta.env.VITE_PROJECT_ID;
 if (!projectId) {
@@ -39,20 +43,44 @@ const modal = createAppKit({
 });
 
 const Navbar = () => {
-  //   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { isConnected, address } = useAppKitAccount();
   const { connection } = useAppKitConnection();
+  const { disconnect } = useDisconnect();
 
-  const handleGetBalance = async () => {
-    const wallet = new PublicKey(address);
-    const balance = await connection?.getBalance(wallet);
+  //   const handleGetBalance = async () => {
+  //     const wallet = new PublicKey(address);
+  //     const balance = await connection?.getBalance(wallet);
 
-    console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
+  //     console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
+  //   };
+
+  const {
+    data: balance,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["balance", address],
+    queryFn: async () => {
+      if (!connection || !address) return 0;
+      const wallet = new PublicKey(address);
+      const balance = await connection.getBalance(wallet);
+      return balance / LAMPORTS_PER_SOL; // Convert lamports to SOL
+    },
+    enabled: !!isConnected && !!address && !!connection, // Only fetch when connected
+    refetchOnWindowFocus: true, // Refetch when window is focused
+    refetchInterval: 60000, // Refetch every 60 seconds
+  });
+
+  const handleLogout = async () => {
+    try {
+      await disconnect();
+      toast.success("Logged out successfully!");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error(`Logout failed: ${error.message}`);
+    }
   };
 
-  //   const [walletAddress, setWalletAddress] = useState("");
-
-  //   useEffect(() => {
   //     const storedAddress = localStorage.getItem("walletAddress");
   //     if (storedAddress) {
   //       setWalletAddress(storedAddress);
@@ -90,7 +118,7 @@ const Navbar = () => {
   //   };
 
   return (
-    <nav className="bg-dark-bg p-4">
+    <nav className="bg-dark-bg overflow-x-hidden p-4">
       <ToastContainer />
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-white text-lg">DQueue</div>
@@ -108,16 +136,22 @@ const Navbar = () => {
           {!isConnected ? (
             <appkit-button />
           ) : (
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-5">
               <div className="text-white">
-                <span>{address}</span>
-                <div>
-                  <button onClick={handleGetBalance}>Get Balance</button>
-                </div>
+                {isLoading ? (
+                  <div className="text-white">Loading...</div>
+                ) : isError ? (
+                  <div className="text-red-500">Error fetching balance</div>
+                ) : (
+                  <div className=" flex flex-row justify-between gap-5 text-white">
+                    <div>Balance: {balance} SOL</div>
+                    <div>Address: {address}</div>
+                  </div>
+                )}
               </div>
 
               <button
-                //onClick={handleLogout}
+                onClick={handleLogout}
                 className="text-white hover:text-gray-300"
               >
                 Logout
