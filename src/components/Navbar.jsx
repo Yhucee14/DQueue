@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import {
   createAppKit,
   useAppKitAccount,
@@ -47,13 +48,6 @@ const Navbar = () => {
   const { connection } = useAppKitConnection();
   const { disconnect } = useDisconnect();
 
-  //   const handleGetBalance = async () => {
-  //     const wallet = new PublicKey(address);
-  //     const balance = await connection?.getBalance(wallet);
-
-  //     console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
-  //   };
-
   const {
     data: balance,
     isLoading,
@@ -81,41 +75,11 @@ const Navbar = () => {
     }
   };
 
-  //     const storedAddress = localStorage.getItem("walletAddress");
-  //     if (storedAddress) {
-  //       setWalletAddress(storedAddress);
-  //       setIsLoggedIn(true);
-  //     }
-  //   }, []);
-
-  //   const handleLoginWithWallet = async () => {
-  //     try {
-  //       console.log("Opening wallet modal...");
-  //       const response = await modal.open();
-
-  //       console.log("Modal Response:", response);
-  //       if (response?.wallet?.address) {
-  //         const address = response.wallet.address;
-  //         console.log("Wallet Address:", address);
-  //         setWalletAddress(address);
-  //         localStorage.setItem("walletAddress", address);
-  //         setIsLoggedIn(true);
-  //         toast.success(`Wallet connected: ${address}`);
-  //       } else {
-  //         throw new Error("Wallet address not returned from response.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Wallet login failed:", error);
-  //       toast.error(`Wallet login failed: ${error.message}`);
-  //     }
-  //   };
-
-  //   const handleLogout = () => {
-  //     localStorage.removeItem("walletAddress");
-  //     setWalletAddress("");
-  //     setIsLoggedIn(false);
-  //     toast.success("Logged out successfully!");
-  //   };
+  useEffect(() => {
+    if (isConnected) {
+      toast.success(`Wallet connected successfully!`);
+    }
+  }, [isConnected, address]);
 
   return (
     <nav className="bg-dark-bg overflow-x-hidden p-4">
