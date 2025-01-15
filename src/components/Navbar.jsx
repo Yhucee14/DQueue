@@ -40,6 +40,14 @@ const modal = createAppKit({
     // socials: ["google", "x", "github", "discord", "farcaster"],
     // emailShowWallets: true,
   },
+  theme: {
+    button: {
+      backgroundColor: "#ffffff", // Set your desired button background color
+      textColor: "#ffffff", // Set your desired text color
+      borderRadius: "8px", // Set your desired border radius
+      hoverBackgroundColor: "#2563eb", // Set hover background color
+    },
+  },
   themeMode: "dark",
 });
 
