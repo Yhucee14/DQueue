@@ -5,7 +5,9 @@ export const programId = new PublicKey(
 );
 
 // Replace with your queue system account
-export const queueAccount = new PublicKey("QueueSystemAccountPublicKey");
+export const queueAccount = new PublicKey(
+  "9P64AzoX9mNitYTEgrXGgeryFNfSTFB6NCcxMyv5GjQb"
+);
 
 // Initialize connection
 export const connection = new Connection(
