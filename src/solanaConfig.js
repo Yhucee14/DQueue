@@ -1,16 +1,10 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
+import { Buffer } from "buffer";
 
-export const programId = new PublicKey(
-  "6qKkhBD5TiJ7AydvkUvjekag52Wibbzqa823aKAMvxCH"
-);
+// const programId = `${import.meta.env.VITE_PROGRAM_ID}`;
 
-// Replace with your queue system account
-export const queueAccount = new PublicKey(
-  "9P64AzoX9mNitYTEgrXGgeryFNfSTFB6NCcxMyv5GjQb"
-);
+export const getQueueSystemAddress = (programId) => {
+  const seeds = [Buffer.from("queue_system")];
 
-// Initialize connection
-export const connection = new Connection(
-  "https://api.devnet.solana.com",
-  "confirmed"
-);
+  return PublicKey.findProgramAddressSync(seeds, programId);
+};
