@@ -1,59 +1,114 @@
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
-import { web3, Program } from "@coral-xyz/anchor";
-import { getQueueSystemAddress } from "./solanaConfig";
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+} from "@solana/web3.js";
+import { Program } from "@coral-xyz/anchor";
+import { getQueueSystemAddress, programId } from "./solanaConfig"; // Ensure the correct relative path to solanaConfig
 import idl from "./idl.json";
 
-const program = new Program(idl, `${import.meta.env.VITE_PROGRAM_ID}`);
-const connection = new Connection("https://api.devnet.solana.com");
+//Queue System Address: z8ayL9v7zs6Yze6gNjD1iNNNWBcQ2eS3LPYrPC2tfre
 
-export const fetchQueueData = async (address) => {
-  const publicKey = new PublicKey(address);
+// Initialize Program and Connection
+//const programId = new PublicKey(`${import.meta.env.VITE_PROGRAM_ID}`);
+const program = new Program(idl, programId);
+const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
-  const accounts = {
-    queueSystem: new PublicKey(getQueueSystemAddress(program.programId)),
-    user: publicKey,
-    systemProgram: web3.SystemProgram.programId,
-    rent: web3.SYSVAR_RENT_PUBKEY,
-  };
+// Get the Queue System Address
+const queueSystemAddress = new PublicKey(getQueueSystemAddress(programId));
+console.log("Queue System Address:", queueSystemAddress.toBase58());
 
-  const result = await program.rpc.getUserPosition(accounts);
-  return result;
+// Fetch Queue Data
+export const fetchQueueData = async (userAddress) => {
+  try {
+    const publicKey = new PublicKey(userAddress);
+
+    const accounts = {
+      queueSystem: queueSystemAddress, // No need to derive it again
+      user: publicKey,
+      systemProgram: SystemProgram.programId,
+    };
+
+    const result = await program.methods
+      .getUserPosition()
+      .accounts(accounts)
+      .rpc();
+    return result;
+  } catch (err) {
+    console.error("Error fetching queue data:", err);
+    throw err;
+  }
 };
 
-export const joinQueue = async (address) => {
-  const publicKey = new PublicKey(address);
+// Join Queue
+export const joinQueue = async (userAddress) => {
+  try {
+    const publicKey = new PublicKey(userAddress);
 
-  const accounts = {
-    queueSystem: new PublicKey(getQueueSystemAddress(program.programId)),
-    user: publicKey,
-    systemProgram: web3.SystemProgram.programId,
-    rent: web3.SYSVAR_RENT_PUBKEY,
-  };
+    const accounts = {
+      queueSystem: queueSystemAddress, // Use the derived address directly
+      user: publicKey,
+      systemProgram: SystemProgram.programId,
+    };
 
-  const transaction = new Transaction();
-  transaction.add(program.methods.joinQueue, accounts);
+    const transaction = new Transaction();
+    const instruction = await program.methods
+      .joinQueue()
+      .accounts(accounts)
+      .instruction();
+    transaction.add(instruction);
 
-  const signature = await connection.sendTransaction(transaction, []);
-  await connection.confirmTransaction(signature);
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = publicKey;
 
-  return signature;
+    // Sign and send the transaction
+    const signedTransaction = await window.solana.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(
+      signedTransaction.serialize()
+    );
+    await connection.confirmTransaction(signature, "confirmed");
+
+    return signature;
+  } catch (err) {
+    console.error("Error joining queue:", err);
+    throw err;
+  }
 };
 
-export const upgradeToVIP = async (address) => {
-  const publicKey = new PublicKey(address);
+// Upgrade to VIP
+export const upgradeToVIP = async (userAddress) => {
+  try {
+    const publicKey = new PublicKey(userAddress);
 
-  const accounts = {
-    queueSystem: new PublicKey(getQueueSystemAddress(program.programId)),
-    user: publicKey,
-    systemProgram: web3.SystemProgram.programId,
-    rent: web3.SYSVAR_RENT_PUBKEY,
-  };
+    const accounts = {
+      queueSystem: queueSystemAddress, // Use the derived address directly
+      user: publicKey,
+      systemProgram: SystemProgram.programId,
+    };
 
-  const transaction = new Transaction();
-  transaction.add(program.methods.upgradeToVip, accounts);
+    const transaction = new Transaction();
+    const instruction = await program.methods
+      .upgradeToVip()
+      .accounts(accounts)
+      .instruction();
+    transaction.add(instruction);
 
-  const signature = await connection.sendTransaction(transaction, []);
-  await connection.confirmTransaction(signature);
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = publicKey;
 
-  return signature;
+    // Sign and send the transaction
+    const signedTransaction = await window.solana.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(
+      signedTransaction.serialize()
+    );
+    await connection.confirmTransaction(signature, "confirmed");
+
+    return signature;
+  } catch (err) {
+    console.error("Error upgrading to VIP:", err);
+    throw err;
+  }
 };
