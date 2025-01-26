@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   createAppKit,
   useAppKitAccount,
@@ -17,10 +17,9 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchQueueData, joinQueue } from "../solanaUtils";
+import { useQuery } from "@tanstack/react-query";
 
-const projectId = import.meta.env.VITE_PROJECT_ID;
+const projectId = `${import.meta.env.VITE_PROJECT_ID}`;
 if (!projectId) {
   throw new Error("Project Id is not defined.");
 }
@@ -48,7 +47,6 @@ const Navbar = () => {
   const { isConnected, address } = useAppKitAccount();
   const { connection } = useAppKitConnection();
   const { disconnect } = useDisconnect();
-  const [queueData, setQueueData] = useState(null);
 
   const {
     data: balance,
@@ -66,13 +64,6 @@ const Navbar = () => {
     refetchOnWindowFocus: true, // Refetch when window is focused
     refetchInterval: 60000, // Refetch every 60 seconds
   });
-
-  // Fetch queue data
-  useEffect(() => {
-    if (isConnected && address) {
-      fetchQueueData(address, setQueueData);
-    }
-  }, [isConnected, address]);
 
   const handleLogout = async () => {
     try {
@@ -96,6 +87,16 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-white text-lg">DQueue</div>
         <div className="space-x-2 flex items-center">
+          {/* <button
+            disabled={!isConnected}
+            className={`text-white hover:text-gray-300 ${
+              !isConnected && "cursor-not-allowed opacity-50"
+            }`}
+          >
+            <Link to="/" className="text-white hover:text-gray-300">
+              Home
+            </Link>
+          </button> */}
           {!isConnected ? (
             <appkit-button />
           ) : (

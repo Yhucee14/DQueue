@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchQueueData, joinQueue, upgradeToVIP } from "../solanaUtils";
+import { fetchQueueData, joinQueue, upgradeToVIP } from "../solanaConfig";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -7,7 +7,7 @@ const Dashboard = () => {
   const [queueData, setQueueData] = useState(null);
   const [userPosition, setUserPosition] = useState(0);
 
-  console.log("Program ID:", import.meta.env.VITE_PROGRAM_ID);
+  console.log("Program ID:", `${import.meta.env.VITE_PROJECT_ID}`);
   // Fetch queue data when component mounts or when address changes
   useEffect(() => {
     fetchQueueData();
