@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import {
   createAppKit,
@@ -19,7 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
-const projectId = `${import.meta.env.VITE_PROJECT_ID}`;
+const projectId = `${import.meta.env.VITE_WALLET_ID}`;
 if (!projectId) {
   throw new Error("Project Id is not defined.");
 }
